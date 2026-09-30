@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Kassen-Trainer – REG (Übung)</title>
+<style>
+  :root{
+    --case:#25282a;
+    --case2:#1f2224;
+    --case3:#303336;
+    --well:#202325;
+    --edge:#08090a;
+    --key:#e2e0d7;
+    --key-top:#f4f2e9;
+    --key-side:#b9b7b0;
+    --ink:#494b4d;
+    --blue:#5cc9ed;
+    --cyan:#58c9d5;
+    --yellow:#f2d968;
+    --pink:#e1bfc0;
+    --lcd:#71ddff;
+    --lcd-bg:#2ba9d1;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:#17191b;color:#eee;font-family:Arial,Helvetica,sans-serif}
+  body{padding:24px 14px 48px;background:radial-gradient(circle at 50% 0,#34383c 0,#191b1e 45%,#0f1012 100%)}
+  button{font:inherit}
+  .page{max-width:1240px;margin:0 auto}
+  .top-actions{display:flex;justify-content:flex-end;gap:8px;margin:0 0 10px}
+  .ui-btn{background:#25282c;color:#f0f0f0;border:1px solid #4b5056;border-radius:9px;padding:8px 12px;cursor:pointer}
+
+  /* cash register body */
+  .register{
+    position:relative;
+    width:100%;
+    aspect-ratio:1.78/1;
+    min-height:620px;
+    border-radius:26px 26px 18px 18px;
+    background:
+      radial-gradient(circle at 16% 13%,#ffffff10 0 1px,transparent 2px),
+      radial-gradient(circle at 70% 40%,#ffffff0b 0 1px,transparent 2px),
+      linear-gradient(160deg,#303437 0%,#25282a 52%,#202325 100%);
+    background-size:17px 19px,23px 29px,auto;
+    border:2px solid #0c0d0e;
+    box-shadow:0 32px 80px #000b,inset 0 0 0 2px #3c4043,inset 0 -14px 28px #0005;
+    overflow:hidden;
+  }
+  .upper{
+    position:absolute;left:5.8%;right:5.8%;top:4.7%;height:44%;
+    border-radius:13px 13px 29px 29px;
+    background:linear-gradient(165deg,#292c2e,#202325 80%);
+    border:1px solid #111315;
+    box-shadow:inset 0 0 0 1px #383c3f,0 4px 8px #0004;
+  }
+  .upper:after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:#474b4e66}
+
+  .printer{
+    position:absolute;left:5.6%;top:9%;width:31%;height:58%;border:1px solid #101214;border-radius:8px 8px 2px 2px;
+    background:linear-gradient(155deg,#2b2f31,#25282a);
+    box-shadow:inset 0 0 0 1px #44494b55;
+  }
+  .printer-window{position:absolute;left:18%;right:18%;top:22%;height:39%;border:5px solid #111416;border-radius:7px;background:linear-gradient(#2b3033,#202427);box-shadow:inset 0 6px 12px #0008}
+  .printer-slot{position:absolute;left:10%;right:10%;bottom:8%;height:7px;border-radius:50%;background:#0a0b0c;box-shadow:0 1px 0 #63686c55}
+
+  .display-shell{
+    position:absolute;left:41%;right:8%;top:8%;height:54%;padding:13px 15px;border-radius:7px;
+    background:#191b1d;border:1px solid #0a0b0c;box-shadow:inset 0 0 0 7px #51565a55,0 1px 0 #555a5d;
+  }
+  .display{
+    width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;
+    background:linear-gradient(180deg,#62d9ff,#36bde8 45%,#2ba8d1);border:1px solid #8fdfff;
+    color:#dff8ff;font-family:"Courier New",monospace;text-shadow:0 0 8px #fff8;overflow:hidden;
+    box-shadow:inset 0 0 16px #0f7b9c77;
+  }
+  .display-main{font-size:clamp(22px,3vw,42px);letter-spacing:.06em;white-space:nowrap}
+  .display-sub{font-size:clamp(9px,1.05vw,14px);opacity:.88;margin-top:6px;white-space:nowrap;max-width:94%;overflow:hidden;text-overflow:ellipsis}
+
+  .keylock{
+    position:absolute;right:11%;bottom:7%;width:68px;height:68px;border-radius:50%;
+    background:radial-gradient(circle,#a6a199 0 12%,#c8c3ba 13% 38%,#7c7871 39% 42%,#d4d0c9 43% 48%,#222 49% 100%);
+    box-shadow:0 2px 7px #0008;
+  }
+  .keylock:before{content:"OFF";position:absolute;top:3px;left:50%;transform:translateX(-50%);font-size:8px;color:#454545;font-weight:700}
+  .keylock:after{content:"";position:absolute;width:8px;height:28px;background:#111;border-radius:4px;left:30px;top:18px;transform:rotate(37deg);box-shadow:0 0 0 2px #aaa8}
+
+  .keyboard-well{
+    position:absolute;left:4.7%;right:4.7%;bottom:5.4%;height:45%;border-radius:17px;background:linear-gradient(180deg,#25282a,#1f2224);
+    border:1px solid #111315;box-shadow:inset 0 0 0 1px #363a3d,inset 0 8px 16px #ffffff08;
+    padding:4.2% 4.2% 3.5%;
+  }
+  .keyboard{
+    height:100%;display:grid;grid-template-columns:1.25fr 1.55fr 2.7fr 1.45fr;gap:3.5%;align-items:stretch;
+  }
+  .cluster{display:grid;gap:7px;min-width:0}
+  .correction{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(4,1fr)}
+  .numpad{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr)}
+  .program{grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(5,1fr)}
+  .payment{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(5,1fr)}
+
+  .key{
+    position:relative;min-width:0;border:0;border-radius:4px;padding:0;background:#b8b7b1;cursor:pointer;
+    box-shadow:0 3px 0 #85847f,0 4px 5px #0009,inset 0 0 0 1px #f9f8f2;
+    transform:translateY(0);transition:transform .04s,box-shadow .04s;user-select:none;-webkit-tap-highlight-color:transparent;
+  }
+  .key:active,.key.pressed{transform:translateY(3px);box-shadow:0 0 0 #85847f,0 1px 2px #0008,inset 0 0 0 1px #fff}
+  .cap{
+    position:absolute;inset:3px 4px 5px;border-radius:2px;background:linear-gradient(180deg,var(--key-top),var(--key));
+    border:1px solid #aaa9a3;box-shadow:inset 0 1px 0 #fff,0 0 0 1px #d8d6cd;
+    display:flex;align-items:center;justify-content:center;text-align:center;color:var(--ink);font-weight:700;line-height:1.03;
+    overflow:hidden;padding:4px;font-size:clamp(8px,.82vw,12px);
+  }
+  .numpad .cap{font-size:clamp(15px,1.6vw,23px);font-weight:500;flex-direction:column;line-height:1}
+  .numpad .alt{font-size:clamp(7px,.72vw,10px);margin-top:5px;font-weight:700}
+  .program .cap{font-size:clamp(7px,.72vw,10px);font-weight:600}
+  .payment .cap{font-size:clamp(8px,.78vw,11px)}
+
+  .stripe-yellow .cap:before,.stripe-cyan .cap:before,.stripe-blue .cap:before,.stripe-pink .cap:before{
+    content:"";position:absolute;left:17%;right:17%;top:4px;height:5px;border-radius:1px;opacity:.85
+  }
+  .stripe-yellow .cap:before{background:var(--yellow)}
+  .stripe-cyan .cap:before{background:var(--cyan)}
+  .stripe-blue .cap:before{background:var(--blue)}
+  .stripe-pink .cap:before{background:var(--pink)}
+  .bar-key{grid-column:1 / -1}
+  .subtotal-key{grid-column:1 / -1}
+  .payment .subtotal-key .cap,.payment .bar-key .cap{font-size:clamp(12px,1.2vw,18px);justify-content:center}
+  .payment .bar-key .cap{font-weight:800}
+  .enter-mini{position:absolute;right:5px;bottom:3px;font-size:7px;font-weight:700}
+
+  .arrow .cap{font-size:0}
+  .arrow .cap:after{content:"";width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:16px solid #777}
+  .arrow.down .cap:after{border-bottom:0;border-top:16px solid #777}
+  .marked:after{content:"";position:absolute;inset:7% 10%;background:linear-gradient(45deg,transparent 43%,#d63528 44% 54%,transparent 55%),linear-gradient(-45deg,transparent 43%,#d63528 44% 54%,transparent 55%);z-index:3;opacity:.88;pointer-events:none}
+  .marked.black:after{background:linear-gradient(45deg,transparent 43%,#343434 44% 54%,transparent 55%),linear-gradient(-45deg,transparent 43%,#343434 44% 54%,transparent 55%)}
+  .marked{cursor:pointer}
+
+  /* printed receipt animation */
+  .paper{
+    position:absolute;z-index:12;left:10%;top:3%;width:22%;max-height:55%;background:#f7f4e9;color:#161616;
+    box-shadow:0 9px 20px #0007;border-radius:0 0 2px 2px;padding:12px 12px 16px;font-family:"Courier New",monospace;font-size:11px;
+    transform:translateY(-115%);transition:transform .55s cubic-bezier(.2,.7,.2,1);overflow:auto;
+  }
+  .paper.show{transform:translateY(0)}
+  .paper h4{text-align:center;margin:0 0 8px;font-size:12px}
+  .paper .rline{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dotted #bbb;padding:3px 0}
+  .paper .rtotal{display:flex;justify-content:space-between;border-top:1px solid #111;margin-top:6px;padding-top:5px;font-weight:800}
+  .paper-close{position:absolute;right:4px;top:2px;border:0;background:transparent;cursor:pointer;font-weight:800}
+
+  .trainer{
+    margin-top:16px;background:#1f2225;border:1px solid #3a3f43;border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+    box-shadow:0 12px 30px #0005;
+  }
+  .trainer .de{font-size:13px;color:#e6e6e6}.trainer .ar{font-size:14px;color:#cfd6da;direction:rtl;text-align:right;margin-top:5px}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:#111416;border:1px solid #3c4247;border-radius:999px;padding:6px 9px;font-size:12px;color:#ccd2d6;margin-right:5px}
+  .lamp{width:7px;height:7px;border-radius:50%;background:#66d06b;box-shadow:0 0 8px #66d06b}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(12px);opacity:0;pointer-events:none;background:#0d0f10;color:white;border:1px solid #484d51;border-radius:10px;padding:10px 14px;box-shadow:0 12px 30px #000a;transition:.18s;z-index:30;direction:rtl}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#000b;z-index:40;padding:16px}
+  .modal.open{display:flex}
+  .modalbox{width:min(450px,100%);background:#25292c;border:1px solid #4a5054;border-radius:14px;padding:18px;direction:rtl;box-shadow:0 20px 70px #000}
+  .modalbox h3{margin:0 0 8px}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.choices button{padding:12px;border-radius:8px;border:1px solid #555;background:#34383c;color:white;cursor:pointer}
+
+  @media(max-width:900px){
+    body{padding:10px 6px 30px}.register{min-height:560px;aspect-ratio:auto;height:670px}.keyboard-well{left:2.5%;right:2.5%;height:48%;padding:4% 2.5% 3%}.keyboard{gap:2%}.cluster{gap:5px}.upper{left:3%;right:3%}.cap{padding:2px}.trainer{grid-template-columns:1fr}.trainer>div:last-child{text-align:left}
+  }
+  @media(max-width:650px){
+    .register{height:790px}.upper{height:35%}.keyboard-well{height:58%;padding:3% 2%;bottom:4%}.keyboard{grid-template-columns:1.2fr 1.45fr 2.6fr 1.5fr;gap:1.4%}.cluster{gap:3px}.key{border-radius:3px}.cap{inset:2px 2px 4px}.keylock{width:48px;height:48px}.keylock:after{left:21px;top:12px;height:21px}.display-shell{left:39%;right:6%}.printer{left:5%;width:29%}.paper{width:34%;left:4%}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top-actions">
+    <button class="ui-btn" id="helpBtn">شرح سريع</button>
+    <button class="ui-btn" id="resetBtn">Reset</button>
+  </div>
+
+  <main class="register" aria-label="Kassen-Trainer">
+    <section class="upper">
+      <div class="printer"><div class="printer-window"></div><div class="printer-slot"></div></div>
+      <div class="display-shell">
+        <div class="display" aria-live="polite">
+          <div class="display-main" id="lcdMain">- REG -</div>
+          <div class="display-sub" id="lcdSub">BEREIT</div>
+        </div>
+      </div>
+      <div class="keylock" title="Schlüsselschalter · REG"></div>
+    </section>
+
+    <div class="paper" id="paper"><button class="paper-close" id="paperClose">×</button><h4>ÜBUNGSBON</h4><div id="paperLines"></div><div class="rtotal"><span>SUMME</span><span id="paperTotal">0,00 €</span></div><div id="paperPay" style="margin-top:7px"></div></div>
+
+    <section class="keyboard-well">
+      <div class="keyboard">
+        <!-- correction cluster -->
+        <div class="cluster correction">
+          <button class="key stripe-yellow" data-action="bonTransport"><span class="cap">▲<br>Bon-<br>Transport</span></button>
+          <button class="key" data-action="instantCancel"><span class="cap">Sofort-<br>storno<br><small>DRUCK</small></span></button>
+          <button class="key stripe-cyan" data-action="deposit"><span class="cap">Ein-<br>zahlung</span></button>
+          <button class="key marked" data-action="retour" title="Retour / Rückgabe: schaltet den nächsten gebuchten Betrag als Rückgabe (negativ)"><span class="cap">Retour</span></button>
+          <button class="key stripe-cyan" data-action="withdraw"><span class="cap">Aus-<br>zahlung</span></button>
+          <button class="key stripe-pink" data-action="storno"><span class="cap">Storno<br><small>ZEIT</small></span></button>
+          <button class="key stripe-pink" data-action="clr"><span class="cap">CLR</span></button>
+          <button class="key stripe-yellow" data-action="cashier"><span class="cap">Bediener</span></button>
+        </div>
+
+        <!-- numeric cluster -->
+        <div class="cluster numpad">
+          <button class="key" data-digit="7"><span class="cap"><span>7</span><span class="alt">.</span></span></button>
+          <button class="key" data-digit="8"><span class="cap"><span>8</span><span class="alt">ABC</span></span></button>
+          <button class="key" data-digit="9"><span class="cap"><span>9</span><span class="alt">DEF</span></span></button>
+          <button class="key" data-digit="4"><span class="cap"><span>4</span><span class="alt">GHI</span></span></button>
+          <button class="key" data-digit="5"><span class="cap"><span>5</span><span class="alt">JKL</span></span></button>
+          <button class="key" data-digit="6"><span class="cap"><span>6</span><span class="alt">MNO</span></span></button>
+          <button class="key" data-digit="1"><span class="cap"><span>1</span><span class="alt">PQRS</span></span></button>
+          <button class="key" data-digit="2"><span class="cap"><span>2</span><span class="alt">TUV</span></span></button>
+          <button class="key" data-digit="3"><span class="cap"><span>3</span><span class="alt">WXYZ</span></span></button>
+          <button class="key" data-digit="0"><span class="cap"><span>0</span></span></button>
+          <button class="key" data-digit="00"><span class="cap"><span>00</span><span class="alt">SP</span></span></button>
+          <button class="key" data-action="del"><span class="cap"><span>DEL</span></span></button>
+        </div>
+
+        <!-- programmable direct keys -->
+        <div class="cluster program" id="programGrid">
+          <button class="key stripe-yellow" data-action="plu"><span class="cap">PLU<br><small>TYP</small></span></button>
+          <button class="key stripe-cyan" data-action="level"><span class="cap">Tastatur<br>Ebene</span></button>
+          <button class="key stripe-yellow" data-action="discount"><span class="cap">%-</span></button>
+          <button class="key stripe-yellow" data-action="multiply"><span class="cap">X</span></button>
+
+          <button class="key" data-group="4"><span class="cap">4/18/32</span></button>
+          <button class="key" data-group="8"><span class="cap">8/22/36</span></button>
+          <button class="key" data-group="12"><span class="cap">12/26/40</span></button>
+          <button class="key arrow stripe-yellow" data-action="up"><span class="cap">▲</span></button>
+
+          <button class="key" data-group="3"><span class="cap">3/17/31</span></button>
+          <button class="key" data-group="7"><span class="cap">7/21/35</span></button>
+          <button class="key" data-group="11"><span class="cap">11/25/39</span></button>
+          <button class="key arrow down stripe-yellow" data-action="down"><span class="cap">▼</span></button>
+
+          <button class="key" data-group="2"><span class="cap">2/16/30</span></button>
+          <button class="key" data-group="6"><span class="cap">6/20/34</span></button>
+          <button class="key" data-group="10"><span class="cap">10/24/38</span></button>
+          <button class="key" data-group="14"><span class="cap">14/28/42</span></button>
+
+          <button class="key marked black" data-group="1"><span class="cap">1/15/29</span></button>
+          <button class="key marked" data-group="5"><span class="cap">5/19/33</span></button>
+          <button class="key" data-group="9"><span class="cap">9/23/37</span></button>
+          <button class="key" data-group="13"><span class="cap">13/27/41</span></button>
+        </div>
+
+        <!-- payment cluster -->
+        <div class="cluster payment">
+          <button class="key stripe-yellow" data-action="bon"><span class="cap">Bon<br>ein/aus</span></button>
+          <button class="key stripe-cyan" data-action="foreign"><span class="cap">Fremd-<br>währung</span></button>
+          <button class="key stripe-cyan" data-action="paymentCorrection"><span class="cap">Zahlart-<br>korrektur</span></button>
+          <button class="key stripe-yellow" data-action="drawer"><span class="cap">Lade<br>öffnen #</span></button>
+          <button class="key stripe-blue" data-action="check"><span class="cap">Scheck</span></button>
+          <button class="key stripe-blue" data-action="card"><span class="cap">Karte</span></button>
+          <button class="key stripe-blue subtotal-key" data-action="subtotal"><span class="cap">Zwischensumme</span></button>
+          <button class="key stripe-blue bar-key" data-action="cash"><span class="cap">BAR<span class="enter-mini">ENTER</span></span></button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="trainer">
+    <div>
+      <div class="de"><span class="badge"><span class="lamp"></span><span id="statusText">REG · Bon EIN · Bediener 1 · Ebene 1</span></span></div>
+      <div class="ar" id="hintText">للتدريب: العلامات بالقلم على بعض الأزرار مجرد تمييز لأنها مهمة، والأزرار تبقى فعّالة. اكتب السعر مثل 250 = 2,50 € ثم اضغط زر التسجيل.</div>
+    </div>
+    <div><button class="ui-btn" id="showLastBtn">آخر فاتورة</button></div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="modal" id="payModal"><div class="modalbox"><h3>Zahlartkorrektur</h3><div>غيّر طريقة الدفع لآخر عملية:</div><div class="choices"><button data-pay="BAR">BAR</button><button data-pay="KARTE">KARTE</button><button data-pay="SCHECK">SCHECK</button></div><button class="ui-btn" id="closePay" style="margin-top:12px">إغلاق</button></div></div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const state = {input:'',items:[],level:1,cashier:1,bon:true,qty:1,last:null,cashIn:0,cashOut:0,selected:-1,returnMode:false};
+  const money = c => (c/100).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+  const inputCents = () => state.input ? parseInt(state.input,10) : 0;
+  const total = () => state.items.reduce((s,x)=>s+x.total,0);
+  function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('show'),1700)}
+  function lcd(main,sub=''){ $('#lcdMain').textContent=main; $('#lcdSub').textContent=sub; }
+  function status(){ $('#statusText').textContent=`REG · Bon ${state.bon?'EIN':'AUS'} · Bediener ${state.cashier} · Ebene ${state.level}`; }
+  function showInput(){
+    if(state.input) lcd(money(inputCents()), state.qty>1?`MENGE ${state.qty} · Direkttaste drücken`:'DIREKTTASTE DRÜCKEN');
+    else lcd('- REG -', state.items.length ? `SUMME ${money(total())}` : 'BEREIT');
+  }
+  function directNo(base){ return base + (state.level-1)*14; }
+  function addDigit(d){ if(state.input.length>=8)return; state.input += d; showInput(); }
+  function clearInput(){ state.input=''; state.qty=1; showInput(); }
+  function book(base){
+    const cents=inputCents(); if(!cents){toast('أدخل السعر أولاً');return;}
+    const no=directNo(base), q=Math.max(1,state.qty||1);
+    const sign=state.returnMode?-1:1; state.items.push({label:`${state.returnMode?'Retour · ':''}WG ${no}`,unit:cents*sign,qty:q,total:cents*q*sign});
+    state.selected=state.items.length-1; state.input=''; state.qty=1;
+    lcd(money(total()),`${state.returnMode?'RETOUR':'WG '+no}  ${state.returnMode?'-':'+'}${money(cents*q)}`); state.returnMode=false;
+    $('#hintText').textContent='تم تسجيل السعر. أدخل السعر التالي، أو اضغط Zwischensumme عندما تخلص.';
+  }
+  function makeReceipt(tx){
+    $('#paperLines').innerHTML=tx.items.map(i=>`<div class="rline"><span>${i.label}${i.qty>1?' × '+i.qty:''}</span><span>${money(i.total)}</span></div>`).join('');
+    $('#paperTotal').textContent=money(tx.total);
+    if(tx.total < 0){
+      $('#paperPay').innerHTML=`RETOUR / ERSTATTUNG<br>${tx.payment} ${money(Math.abs(tx.total))}`;
+    } else {
+      $('#paperPay').innerHTML=`${tx.payment}${tx.payment==='BAR'?`<br>GEGEBEN ${money(tx.tender)}<br>RÜCKGELD ${money(tx.change)}`:''}`;
+    }
+    $('#paper').classList.add('show');
+  }
+  function finalize(type){
+    if(!state.items.length){toast('ما في أسعار مسجلة');return;}
+    const sum=total(), isRefund=sum<0; let tender=sum,change=0;
+    if(type==='BAR' && !isRefund && state.input){ tender=inputCents(); if(tender<sum){lcd('ZU WENIG',`FEHLT ${money(sum-tender)}`);toast('المبلغ المدفوع أقل من الحساب');return;} change=tender-sum; }
+    const tx={items:state.items.map(x=>({...x})),total:sum,payment:type,tender,change,date:new Date()}; state.last=tx;
+    if(isRefund){
+      lcd(type==='BAR'?'RÜCKZAHLUNG':'ERSTATTET',`${type}  ${money(Math.abs(sum))}`);
+    } else if(type==='BAR'){
+      lcd(`RÜCKGELD ${money(change)}`,`SUMME ${money(sum)}`);
+    } else {
+      lcd('BEZAHLT',`${type}  ${money(sum)}`);
+    }
+    if(state.bon) makeReceipt(tx); else toast(isRefund?'تم تسجيل المرتجع · Bon AUS':'تم الدفع · Bon AUS');
+    state.items=[];state.input='';state.qty=1;state.selected=-1;state.returnMode=false;
+    $('#hintText').textContent = isRefund
+      ? `تم تسجيل المرتجع بقيمة ${money(Math.abs(sum))} عبر ${type}.`
+      : (type==='BAR' ? `تم الدفع كاش. الباقي: ${money(change)}.` : `تم الدفع بواسطة ${type}.`);
+  }
+  function reset(){ Object.assign(state,{input:'',items:[],level:1,cashier:1,bon:true,qty:1,last:null,cashIn:0,cashOut:0,selected:-1,returnMode:false}); $('#paper').classList.remove('show'); status(); showInput(); $('#hintText').textContent='للتدريب: العلامات بالقلم على بعض الأزرار مجرد تمييز لأنها مهمة، والأزرار تبقى فعّالة. اكتب السعر مثل 250 = 2,50 € ثم اضغط زر التسجيل.'; }
+  function deposit(out=false){ const c=inputCents();if(!c){toast('أدخل المبلغ أولاً');return;} if(out)state.cashOut+=c;else state.cashIn+=c;lcd(out?'AUSZAHLUNG':'EINZAHLUNG',money(c));state.input='';$('#hintText').textContent=out?'تم تسجيل إخراج مبلغ من الدرج، وليس عملية بيع.':'تم تسجيل إدخال مبلغ للصندوق، وليس عملية بيع.'; }
+  function discount(){ const p=parseInt(state.input||'0',10); if(!p||p>100){toast('اكتب نسبة الخصم، مثل 10');return;} if(!state.items.length){toast('ما في بند لتطبيق الخصم');return;} const i=state.items[state.items.length-1],d=Math.round(Math.abs(i.total)*p/100);state.items.push({label:`Rabatt ${p}%`,unit:-d,qty:1,total:-d});state.input='';lcd('RABATT',`-${money(d)} · SUMME ${money(total())}`); }
+  function pressFx(btn){ btn.classList.add('pressed');setTimeout(()=>btn.classList.remove('pressed'),90); }
+
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b)return; if(b.classList.contains('key'))pressFx(b);
+    if(b.dataset.digit!==undefined){addDigit(b.dataset.digit);return;}
+    if(b.dataset.group!==undefined){book(Number(b.dataset.group));return;}
+    if(b.dataset.pay){ if(state.last){state.last.payment=b.dataset.pay;$('#payModal').classList.remove('open');lcd('ZAHLART',b.dataset.pay);if(state.bon)makeReceipt(state.last);} return; }
+    const a=b.dataset.action;if(!a)return;
+    switch(a){
+      case 'clr': clearInput(); break;
+      case 'del': state.input=state.input.slice(0,-1);showInput();break;
+      case 'instantCancel': if(!state.items.length){toast('ما في آخر بند');break;} {const x=state.items.pop();lcd('SOFORT-STORNO',`${x.label} ${money(x.total)}`);} break;
+      case 'storno': if(!state.items.length){toast('ما في بند للإلغاء');break;} {const x=state.items.pop();lcd('STORNO',`${x.label} ${money(x.total)}`);} break;
+      case 'deposit': deposit(false);break;
+      case 'withdraw': deposit(true);break;
+      case 'cashier': state.cashier=state.cashier%4+1;status();lcd(`BEDIENER ${state.cashier}`,'ANGEMELDET');break;
+      case 'bon': state.bon=!state.bon;status();lcd(`BON ${state.bon?'EIN':'AUS'}`,'');break;
+      case 'foreign': lcd('FREMDWÄHRUNG','TRAINER');toast('وظيفة تدريبية فقط');break;
+      case 'paymentCorrection': if(!state.last){toast('ما في عملية سابقة');break;} $('#payModal').classList.add('open');break;
+      case 'drawer': lcd('LADE OFFEN','TRAINER');toast('فتح الدرج – محاكاة');break;
+      case 'check': finalize('SCHECK');break;
+      case 'card': finalize('KARTE');break;
+      case 'subtotal': lcd(money(total()),`${state.items.length} POSITION(EN)`);$('#hintText').textContent=`المجموع الحالي ${money(total())}. اختر BAR أو Karte.`;break;
+      case 'cash': finalize('BAR');break;
+      case 'level': state.level=state.level%3+1;status();lcd(`EBENE ${state.level}`,'DIREKTTASTEN');break;
+      case 'up': state.level=state.level===3?1:state.level+1;status();lcd(`EBENE ${state.level}`,'');break;
+      case 'down': state.level=state.level===1?3:state.level-1;status();lcd(`EBENE ${state.level}`,'');break;
+      case 'multiply': if(!state.input){toast('اكتب الكمية أولاً، مثال 3 ثم X');break;} state.qty=Math.max(1,parseInt(state.input,10));state.input='';lcd(`MENGE ${state.qty}`,'PREIS EINGEBEN');break;
+      case 'discount': discount();break;
+      case 'plu': if(!state.input){toast('اكتب رقم PLU أولاً');break;} {const n=parseInt(state.input,10);const demo={1:['Kaffee',250],2:['Wasser',180],3:['Snack',320],4:['Zeitung',220]};if(!demo[n]){toast('في التدريب PLU من 1 إلى 4');state.input='';break;}const [name,c]=demo[n];state.items.push({label:`PLU ${n} ${name}`,unit:c,qty:1,total:c});state.input='';lcd(name,money(c));}break;
+      case 'bonTransport': toast('Bon-Transport: الوظيفة تعتمد على برمجة الجهاز الحقيقي');break;
+      case 'retour': state.returnMode=!state.returnMode; lcd(state.returnMode?'RETOUR EIN':'RETOUR AUS', state.returnMode?'PREIS EINGEBEN':''); $('#hintText').textContent=state.returnMode?'وضع Retour مفعّل: أدخل سعر المرتجع ثم زر التسجيل.':'تم إلغاء وضع Retour.'; break;
+    }
+  });
+  $('#resetBtn').onclick=reset;
+  $('#helpBtn').onclick=()=>alert('مثال بيع:\n250 → زر من اللوحة الوسطى → 420 → زر وسط → 130 → زر وسط → Zwischensumme.\n\nإذا الحساب 8,00 € والزبون أعطاك 10 €: اكتب 1000 ثم BAR ليظهر Rückgeld 2,00 €.\n\nمثال Retour (مرتجع):\nRetour → اكتب السعر → زر التسجيل → Zwischensumme → BAR أو Karte. يظهر المبلغ كقيمة سالبة/إرجاع.');
+  $('#paperClose').onclick=()=>$('#paper').classList.remove('show');
+  $('#showLastBtn').onclick=()=>{if(!state.last){toast('ما في فاتورة سابقة');return;}makeReceipt(state.last)};
+  $('#closePay').onclick=()=>$('#payModal').classList.remove('open');
+  document.addEventListener('keydown',e=>{if(/^\d$/.test(e.key))addDigit(e.key);else if(e.key==='Backspace'){state.input=state.input.slice(0,-1);showInput()}else if(e.key==='Escape')clearInput()});
+  status();showInput();
+})();
+</script>
+</body>
+</html>
